@@ -4,23 +4,22 @@ import torch.nn.functional as F
 
 
 class DQN(nn.Module):
-    def __init__(self, n_actions):
+    def __init__(self, n_states=10, n_actions=2, n_feats=64):
         super(DQN, self).__init__()
-        self.fc1 = nn.Linear(1, 128)
-        self.fc2 = nn.Linear(128, 128)
-        self.fc3 = nn.Linear(128, n_actions)
+        self.model = nn.Sequential(
+            nn.Linear(n_states, n_feats),
+            nn.ReLU(),
+            nn.Linear(n_feats, n_feats),
+            nn.ReLU(),
+            nn.Linear(n_feats, n_actions)
+        )
 
     def forward(self, x):
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = self.fc3(x)
-        return x
+        return self.model(x)
 
 
 if __name__ == "__main__":
     input = torch.Tensor(1)
-    state = 1
-    input = torch.tensor(state, dtype=torch.float).unsqueeze(dim=0)
-    model = DQN(n_actions=2)
+    model = DQN()
     output = model(input)
     print(output.shape)

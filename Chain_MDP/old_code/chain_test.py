@@ -1,7 +1,8 @@
 import argparse
-
+import random
+import torch
 from chain_mdp import ChainMDP
-# from agent_chainMDP import DQNAgent
+from agent_chainMDP import Agent
 
 
 # Arguments
@@ -9,9 +10,6 @@ parser = argparse.ArgumentParser(description='DQN')
 
 parser.add_argument("--gpu_num", type=int, default=0, help='gpu number')
 parser.add_argument("--random_seed", type=int, default=100, help='pytorch random seed')
-
-# Evaluation Parameters
-parser.add_argument("--eval_episodes", type=int, default=1, help='number of evaluation episodes')
 
 # Training Parameters
 parser.add_argument("--batch_size", type=int, default=128, help='batch size')
@@ -26,27 +24,27 @@ parser.add_argument("--eps_end", type=int, default=0.05, help='epsilon at end')
 parser.add_argument("--eps_decay", type=int, default=200, help='epsilon decay')
 parser.add_argument("--n_actions", type=int, default=2, help='size of action space')
 
-args = parser.parse_args()
+opt = parser.parse_args()
 
-# Environment
-env = ChainMDP(n=10)
-state_size = env.n
-action_size = env.action_space.n
+# recieve 1 at rightmost stae and recieve small reward at leftmost state
+env = ChainMDP(10)
+s = env.reset()
 
-# # Agent
-# agent = DQNAgent()
+agent = Agent(opt)
+agent.train(env)
 
-# Evaluation
-for _ in range(args.eval_episodes):
-    s = env.reset()
-
-    done = False
-    cum_reward = 0.0
-
-    while not done:
-        action = agent.action()
-        ns, reward, done, _ = env.step(action)
-
-        cum_reward += reward
-
-    print(f"total reward: {cum_reward}")
+done = False
+cum_reward = 0.0
+# always move right left: 0, right: 1
+step = 0
+state = torch.tensor(1, dtype=torch.float)
+print('Evaluation start')
+while not done:
+    action = agent.action(state, step)
+    action = action.cpu().item()
+    print(action)
+    ns, reward, done, _ = env.step(action)
+    print(ns, reward, done)
+    cum_reward += reward
+    step += 1
+print(f"total reward: {cum_reward}")
