@@ -147,12 +147,20 @@ class agent():
 
                 t = t+1
             
-            if episode % 100 == 0:
-                print(f"Episode {episode}")
-                print(f"states: {epi_states}")
-                print(f"rewards: {epi_rewards}")
         return
     
     def action(self, state):
-        
+        if len(state[0]) != 0:
+            state = state[-1]
+            for x in range(state.size):
+                            if state[x] == 0:
+                                state = x-1
+                                break
+                            if x == 9:
+                                state = 9
         return int(self.pols[self.M-1, state])
+
+    def append_sample(self, state, action, reward, next_state, done):
+
+
+        self.memory.add(state, action, reward, next_state, done)
