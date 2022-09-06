@@ -1,1 +1,2 @@
-# DSRL_2022_Spring_Team17
+# Reinforcement Learning Class
+### 2022 Spring
